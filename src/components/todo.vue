@@ -118,7 +118,7 @@ export default {
     // handleOk(bvModalEvt) {
     handleOk() {
       // Prevent modal from closing
-      // bvModalEvt.preventDefault();
+      // e.preventDefault();
       // Trigger submit handler
       this.handleSubmit();
     },
@@ -130,8 +130,12 @@ export default {
       // Push the name to submitted names
       // this.submittedNames.push(this.name);
       const tasksInLS = JSON.parse(localStorage.getItem('tasks'));
-      this.newID = tasksInLS.length + 1;
-      tasksInLS.push({ id: this.newID, describe: this.newTask, status: false });
+      if (!tasksInLS) {
+        this.newID = 1;
+      } else {
+        this.newID = tasksInLS.length + 1;
+      }
+      tasksInLS.$set(tasksInLS.length, { id: this.newID, describe: this.newTask, status: false });
       console.log(tasksInLS);
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
       // Hide the modal manually
