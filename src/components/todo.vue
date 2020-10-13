@@ -15,12 +15,12 @@
         <b-form-group
           :state="nameState"
           label="Что запланируем?"
-          label-for="name-input"
+          label-for="task-input"
           invalid-feedback="Надо что-то ввести"
         >
           <b-form-input
             id="task-input"
-            v-model="name"
+            v-model="newTask"
             :state="nameState"
             required
           ></b-form-input>
@@ -129,13 +129,15 @@ export default {
       }
       // Push the name to submitted names
       // this.submittedNames.push(this.name);
-      const tasksInLS = JSON.parse(localStorage.getItem('tasks'));
-      if (!tasksInLS) {
-        this.newID = 1;
-      } else {
+      let tasksInLS = {};
+      if (localStorage.getItem('tasks')) {
+        tasksInLS = JSON.parse(localStorage.getItem('tasks'));
         this.newID = tasksInLS.length + 1;
+        tasksInLS.push({ id: this.newID, describe: this.newTask, status: false });
+      } else {
+        this.newID = 1;
+        tasksInLS = { id: this.newID, describe: this.newTask, status: false };
       }
-      tasksInLS.$set(tasksInLS.length, { id: this.newID, describe: this.newTask, status: false });
       console.log(tasksInLS);
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
       // Hide the modal manually
