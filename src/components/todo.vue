@@ -7,13 +7,10 @@
       id="add-new-task"
       ref="modal"
       title="Добавление новой задачи"
-      @show="resetModal"
-      @hidden="resetModal"
       @ok="handleOk"
     >
       <form ref="form" @submit.stop.prevent="handleSubmit">
         <b-form-group
-          :state="nameState"
           label="Что запланируем?"
           label-for="task-input"
           invalid-feedback="Надо что-то ввести"
@@ -21,7 +18,6 @@
           <b-form-input
             id="task-input"
             v-model="newTask"
-            :state="nameState"
             required
           ></b-form-input>
         </b-form-group>
@@ -40,9 +36,6 @@
     <b-button class="done-btn">Завершить выбранные</b-button>
     <b-button class="delete-btn">Удалить выбранные</b-button>
   </div>
-  <!-- <div v-for='(todo,key) in todo_list' :key='key'>
-      <p>{{ todo.id }} | {{ todo.describe }} | {{ todo.status }} </p>
-  </div> -->
 </div>
 </template>
 <script>
@@ -51,33 +44,15 @@ import 'bootstrap/dist/css/bootstrap.css';
 export default {
   name: 'todo.vue',
   data() {
-    // const test = [
-    //   {
-    //     id: 1,
-    //     describe: 'Освоить Vue',
-    //     status: false,
-    //   },
-    //   {
-    //     id: 2,
-    //     describe: 'Пройти аттестацию модуля С',
-    //     status: false,
-    //   },
-    //   {
-    //     id: 3,
-    //     describe: 'Выпить пивка в субботу',
-    //     status: false,
-    //   },
-    // ];
+    const newTask = '';
+    let items = [];
+    if (localStorage.getItem('tasks')) {
+      items = () => {
+        const taskList = JSON.parse(localStorage.getItem('tasks'));
+        return taskList;
+      };
+    }
 
-    // localStorage.setItem('tasks', JSON.stringify(test));
-    const items = () => {
-      const taskList = JSON.parse(localStorage.getItem('tasks'));
-      return taskList;
-    };
-    const addTaskModal = {
-      newTask: '',
-      nameState: null,
-    };
     return {
       fields: [
         {
@@ -102,23 +77,17 @@ export default {
         },
       ],
       items,
-      addTaskModal,
+      newTask,
     };
   },
   methods: {
     checkFormValidity() {
       const valid = this.$refs.form.checkValidity();
-      this.nameState = valid;
       return valid;
     },
-    resetModal() {
-      this.newTask = '';
-      this.nameState = null;
-    },
-    // handleOk(bvModalEvt) {
-    handleOk() {
+    handleOk(e) {
       // Prevent modal from closing
-      // e.preventDefault();
+      e.preventDefault();
       // Trigger submit handler
       this.handleSubmit();
     },
@@ -127,18 +96,16 @@ export default {
       if (!this.checkFormValidity()) {
         return;
       }
-      // Push the name to submitted names
-      // this.submittedNames.push(this.name);
-      let tasksInLS = {};
-      if (localStorage.getItem('tasks')) {
+      let tasksInLS = [];
+      if (localStorage.getItem('tasks') !== null) {
         tasksInLS = JSON.parse(localStorage.getItem('tasks'));
-        this.newID = tasksInLS.length + 1;
-        tasksInLS.push({ id: this.newID, describe: this.newTask, status: false });
+        const newID = tasksInLS.length + 1;
+        const newElement = { id: newID, describe: this.newTask, status: false };
+        tasksInLS.push(newElement);
       } else {
         this.newID = 1;
-        tasksInLS = { id: this.newID, describe: this.newTask, status: false };
+        tasksInLS = [{ id: this.newID, describe: this.newTask, status: false }];
       }
-      console.log(tasksInLS);
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
       // Hide the modal manually
       this.$nextTick(() => {
