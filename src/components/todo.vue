@@ -7,13 +7,10 @@
       id="add-new-task"
       ref="modal"
       title="Добавление новой задачи"
-      @show="resetModal"
-      @hidden="resetModal"
       @ok="handleOk"
     >
       <form ref="form" @submit.stop.prevent="handleSubmit">
         <b-form-group
-          :state="nameState"
           label="Что запланируем?"
           label-for="task-input"
           invalid-feedback="Надо что-то ввести"
@@ -21,7 +18,6 @@
           <b-form-input
             id="task-input"
             v-model="newTask"
-            :state="nameState"
             required
           ></b-form-input>
         </b-form-group>
@@ -48,59 +44,50 @@ import 'bootstrap/dist/css/bootstrap.css';
 export default {
   name: 'todo.vue',
   data() {
-    const items = () => {
-      let taskList = [];
-      if (localStorage.getItem('tasks')) {
-        taskList = JSON.parse(localStorage.getItem('tasks'));
-      }
-      return taskList;
-    };
-    const addTaskModal = {
-      newTask: '',
-      nameState: null,
-    };
-    const fields = [
-      {
-        key: 'id',
-        label: 'Номер п/п',
-      },
-      {
-        key: 'describe',
-        label: 'Задача',
-      },
-      {
-        key: 'status',
-        label: 'Статус',
-      },
-      {
-        key: 'edit',
-        label: 'Внести изменения',
-      },
-      {
-        key: 'select',
-        label: 'Выбор',
-      },
-    ];
+    const newTask = '';
+    let items = [];
+    if (localStorage.getItem('tasks')) {
+      items = () => {
+        const taskList = JSON.parse(localStorage.getItem('tasks'));
+        return taskList;
+      };
+    }
+
     return {
-      fields,
+      fields: [
+        {
+          key: 'id',
+          label: 'Номер п/п',
+        },
+        {
+          key: 'describe',
+          label: 'Задача',
+        },
+        {
+          key: 'status',
+          label: 'Статус',
+        },
+        {
+          key: 'edit',
+          label: 'Внести изменения',
+        },
+        {
+          key: 'select',
+          label: 'Выбор',
+        },
+      ],
       items,
-      addTaskModal,
+      newTask,
     };
   },
   methods: {
     checkFormValidity() {
       const valid = this.$refs.form.checkValidity();
-      this.nameState = valid;
       return valid;
     },
-    resetModal() {
-      this.newTask = '';
-      this.nameState = null;
-    },
-    // handleOk(bvModalEvt) {
-    handleOk() {
+    handleOk(e) {
       // Prevent modal from closing
-      // e.preventDefault();
+      e.preventDefault();
       // Trigger submit handler
       this.handleSubmit();
     },
@@ -109,12 +96,18 @@ export default {
       if (!this.checkFormValidity()) {
         return;
       }
-      this.newID = this.items.length + 1;
-      console.log(this.data().items);
-      this.taskList.push({ id: this.newID, describe: this.newTask, status: false });
-      localStorage.setItem('tasks', JSON.stringify(this.taskList));
+      let tasksInLS = [];
+      if (localStorage.getItem('tasks') !== null) {
+        tasksInLS = JSON.parse(localStorage.getItem('tasks'));
+        const newID = tasksInLS.length + 1;
+        const newElement = { id: newID, describe: this.newTask, status: false };
+        tasksInLS.push(newElement);
+      } else {
+        this.newID = 1;
+        tasksInLS = [{ id: this.newID, describe: this.newTask, status: false }];
+      }
+      localStorage.setItem('tasks', JSON.stringify(tasksInLS));
       // Hide the modal manually
-
       this.$nextTick(() => {
         this.$bvModal.hide('add-new-task');
       });
