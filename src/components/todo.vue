@@ -40,9 +40,6 @@
     <b-button class="done-btn">Завершить выбранные</b-button>
     <b-button class="delete-btn">Удалить выбранные</b-button>
   </div>
-  <!-- <div v-for='(todo,key) in todo_list' :key='key'>
-      <p>{{ todo.id }} | {{ todo.describe }} | {{ todo.status }} </p>
-  </div> -->
 </div>
 </template>
 <script>
@@ -51,56 +48,41 @@ import 'bootstrap/dist/css/bootstrap.css';
 export default {
   name: 'todo.vue',
   data() {
-    // const test = [
-    //   {
-    //     id: 1,
-    //     describe: 'Освоить Vue',
-    //     status: false,
-    //   },
-    //   {
-    //     id: 2,
-    //     describe: 'Пройти аттестацию модуля С',
-    //     status: false,
-    //   },
-    //   {
-    //     id: 3,
-    //     describe: 'Выпить пивка в субботу',
-    //     status: false,
-    //   },
-    // ];
-
-    // localStorage.setItem('tasks', JSON.stringify(test));
     const items = () => {
-      const taskList = JSON.parse(localStorage.getItem('tasks'));
+      let taskList = [];
+      if (localStorage.getItem('tasks')) {
+        taskList = JSON.parse(localStorage.getItem('tasks'));
+      }
       return taskList;
     };
     const addTaskModal = {
       newTask: '',
       nameState: null,
     };
+    const fields = [
+      {
+        key: 'id',
+        label: 'Номер п/п',
+      },
+      {
+        key: 'describe',
+        label: 'Задача',
+      },
+      {
+        key: 'status',
+        label: 'Статус',
+      },
+      {
+        key: 'edit',
+        label: 'Внести изменения',
+      },
+      {
+        key: 'select',
+        label: 'Выбор',
+      },
+    ];
     return {
-      fields: [
-        {
-          key: 'id',
-          label: 'Номер п/п',
-        },
-        {
-          key: 'describe',
-          label: 'Задача',
-        },
-        {
-          key: 'status',
-          label: 'Статус',
-        },
-        {
-          key: 'edit',
-          label: 'Внести изменения',
-        },
-        {
-          key: 'select',
-          label: 'Выбор',
-        },
-      ],
+      fields,
       items,
       addTaskModal,
     };
@@ -127,20 +109,12 @@ export default {
       if (!this.checkFormValidity()) {
         return;
       }
-      // Push the name to submitted names
-      // this.submittedNames.push(this.name);
-      let tasksInLS = {};
-      if (localStorage.getItem('tasks')) {
-        tasksInLS = JSON.parse(localStorage.getItem('tasks'));
-        this.newID = tasksInLS.length + 1;
-        tasksInLS.push({ id: this.newID, describe: this.newTask, status: false });
-      } else {
-        this.newID = 1;
-        tasksInLS = { id: this.newID, describe: this.newTask, status: false };
-      }
-      console.log(tasksInLS);
-      localStorage.setItem('tasks', JSON.stringify(tasksInLS));
+      this.newID = this.items.length + 1;
+      console.log(this.data().items);
+      this.taskList.push({ id: this.newID, describe: this.newTask, status: false });
+      localStorage.setItem('tasks', JSON.stringify(this.taskList));
       // Hide the modal manually
+
       this.$nextTick(() => {
         this.$bvModal.hide('add-new-task');
       });
