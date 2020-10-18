@@ -45,14 +45,7 @@ export default {
   name: 'todo.vue',
   data() {
     const newTask = '';
-    let items = [];
-    if (localStorage.getItem('tasks')) {
-      items = () => {
-        const taskList = JSON.parse(localStorage.getItem('tasks'));
-        return taskList;
-      };
-    }
-
+    const items = [];
     return {
       fields: [
         {
@@ -81,14 +74,19 @@ export default {
     };
   },
   methods: {
+    showTodos() {
+      if (localStorage.getItem('tasks')) {
+        this.items = () => {
+          const taskList = JSON.parse(localStorage.getItem('tasks'));
+          return taskList;
+        };
+      }
+    },
     checkFormValidity() {
       const valid = this.$refs.form.checkValidity();
       return valid;
     },
-    handleOk(e) {
-      // Prevent modal from closing
-      e.preventDefault();
-      // Trigger submit handler
+    handleOk() {
       this.handleSubmit();
     },
     handleSubmit() {
@@ -107,11 +105,15 @@ export default {
         tasksInLS = [{ id: this.newID, describe: this.newTask, status: false }];
       }
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
+      this.showTodos();
       // Hide the modal manually
       this.$nextTick(() => {
         this.$bvModal.hide('add-new-task');
       });
     },
+  },
+  created() {
+    this.showTodos();
   },
 };
 </script>
