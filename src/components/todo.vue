@@ -67,10 +67,7 @@ export default {
   name: 'todo.vue',
   data() {
     const newTask = '';
-<<<<<<< HEAD
     const editTask = '';
-=======
->>>>>>> 0f8024516bc14a4ae64974fd0fb1b383d5733fcb
     const items = [];
     return {
       fields: [
@@ -132,10 +129,7 @@ export default {
         tasksInLS = [{ id: this.newID, describe: this.newTask, status: false }];
       }
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
-<<<<<<< HEAD
       this.newTask = '';
-=======
->>>>>>> 0f8024516bc14a4ae64974fd0fb1b383d5733fcb
       this.showTodos();
       // Hide the modal manually
       this.$nextTick(() => {
@@ -154,9 +148,6 @@ export default {
     changeTask(record) {
       this.editTask = record.describe;
     },
-  },
-  created() {
-    this.showTodos();
   },
   created() {
     this.showTodos();
