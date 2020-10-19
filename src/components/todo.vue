@@ -24,9 +24,31 @@
       </form>
     </b-modal>
 
+    <b-modal
+      id="edit-task"
+      ref="modal"
+      title="Изменение задачи"
+      @ok="handleEditTaskOk"
+    >
+      <form ref="form" @submit.stop.prevent="handleEditTaskSubmit">
+        <b-form-group
+          label="Измените задачу"
+          label-for="edit-task-input"
+          invalid-feedback="Надо что-то ввести"
+        >
+          <b-form-input
+            id="edit-task-input"
+            v-model="editTask"
+            required
+          ></b-form-input>
+        </b-form-group>
+      </form>
+    </b-modal>
+
   <b-table small fixed striped hover :fields="fields" :items="items">
     <template v-slot:cell(edit)="row">
-      <b-button size="sm" @click="row.toggleDetails" class="mr-2">Изменить</b-button>
+      <b-button v-b-modal.edit-task size="sm" @click="changeTask(row.item)" class="mr-2">Изменить
+      </b-button>
     </template>
     <template v-slot:cell(select)="row">
       <b-form-checkbox v-model="row.detailsShowing" @change="row.toggleDetails"></b-form-checkbox>
@@ -45,14 +67,8 @@ export default {
   name: 'todo.vue',
   data() {
     const newTask = '';
-    let items = [];
-    if (localStorage.getItem('tasks')) {
-      items = () => {
-        const taskList = JSON.parse(localStorage.getItem('tasks'));
-        return taskList;
-      };
-    }
-
+    const editTask = '';
+    const items = [];
     return {
       fields: [
         {
@@ -78,17 +94,23 @@ export default {
       ],
       items,
       newTask,
+      editTask,
     };
   },
   methods: {
+    showTodos() {
+      if (localStorage.getItem('tasks')) {
+        this.items = () => {
+          const taskList = JSON.parse(localStorage.getItem('tasks'));
+          return taskList;
+        };
+      }
+    },
     checkFormValidity() {
       const valid = this.$refs.form.checkValidity();
       return valid;
     },
-    handleOk(e) {
-      // Prevent modal from closing
-      e.preventDefault();
-      // Trigger submit handler
+    handleOk() {
       this.handleSubmit();
     },
     handleSubmit() {
@@ -107,11 +129,28 @@ export default {
         tasksInLS = [{ id: this.newID, describe: this.newTask, status: false }];
       }
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
+      this.newTask = '';
+      this.showTodos();
       // Hide the modal manually
       this.$nextTick(() => {
         this.$bvModal.hide('add-new-task');
       });
     },
+    handleEditTaskOk() {
+      this.handleEditTaskSubmit();
+    },
+    handleEditTaskSubmit() {
+      if (!this.checkFormValidity()) {
+        return;
+      }
+      console.log();
+    },
+    changeTask(record) {
+      this.editTask = record.describe;
+    },
+  },
+  created() {
+    this.showTodos();
   },
 };
 </script>
