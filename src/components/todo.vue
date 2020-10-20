@@ -51,7 +51,8 @@
       </b-button>
     </template>
     <template v-slot:cell(select)="row">
-      <b-form-checkbox v-model="row.detailsShowing" @change="row.toggleDetails"></b-form-checkbox>
+      <b-form-checkbox v-model="row.selected" @change="toggleSelectTask(row.item, selectedTasks)">
+      </b-form-checkbox>
     </template>
   </b-table>
   <div class="done-btn-div">
@@ -63,12 +64,15 @@
 <script>
 import 'bootstrap/dist/css/bootstrap.css';
 
+const inProgress = 'В процессе';
+// const done = 'Выполнено';
 export default {
   name: 'todo.vue',
   data() {
     const newTask = '';
     const editTask = '';
     const items = [];
+    const selectedTasks = [];
     return {
       fields: [
         {
@@ -85,16 +89,18 @@ export default {
         },
         {
           key: 'edit',
-          label: 'Внести изменения',
+          label: '',
         },
         {
           key: 'select',
-          label: 'Выбор',
+          label: '',
         },
       ],
       items,
       newTask,
       editTask,
+      selectedTasks,
+      selected: [],
     };
   },
   methods: {
@@ -122,11 +128,11 @@ export default {
       if (localStorage.getItem('tasks') !== null) {
         tasksInLS = JSON.parse(localStorage.getItem('tasks'));
         const newID = tasksInLS.length + 1;
-        const newElement = { id: newID, describe: this.newTask, status: false };
+        const newElement = { id: newID, describe: this.newTask, status: inProgress };
         tasksInLS.push(newElement);
       } else {
         this.newID = 1;
-        tasksInLS = [{ id: this.newID, describe: this.newTask, status: false }];
+        tasksInLS = [{ id: this.newID, describe: this.newTask, status: inProgress }];
       }
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
       this.newTask = '';
@@ -143,10 +149,31 @@ export default {
       if (!this.checkFormValidity()) {
         return;
       }
-      console.log();
+      const updatedTask = JSON.parse(localStorage.getItem('oldTask'));
+      updatedTask.describe = this.editTask;
+      const tasksInLS = JSON.parse(localStorage.getItem('tasks'));
+      tasksInLS.forEach((task) => {
+        if (task.id === updatedTask.id) {
+          task.describe = updatedTask.describe; // eslint-disable-line no-param-reassign
+        }
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasksInLS));
+      localStorage.removeItem('oldTask');
+      this.showTodos();
     },
     changeTask(record) {
       this.editTask = record.describe;
+      localStorage.setItem('oldTask', JSON.stringify(record));
+    },
+    toggleSelectTask(record, selectedTasks) {
+      console.log(this.selectTask);
+      if (this.selectTask) {
+        this.selectTask = false;
+      } else {
+        selectedTasks.push(record);
+        this.selectTask = true;
+      }
+      console.log(record, selectedTasks);
     },
   },
   created() {
@@ -175,5 +202,4 @@ h3 {
 .done-btn, .delete-btn {
   margin: 0 0 0 10px;
 }
-
 </style>
