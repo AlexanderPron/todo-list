@@ -45,20 +45,47 @@
       </form>
     </b-modal>
 
-  <b-table small fixed striped hover :fields="fields" :items="items">
+  <b-table
+    small
+    fixed
+    striped
+    hover
+    :fields="fields"
+    :items="items"
+    ref="selectableTable"
+    selectable
+    :select-mode="selectMode"
+    @row-selected="onRowSelected"
+    responsive="sm">
     <template v-slot:cell(edit)="row">
       <b-button v-b-modal.edit-task size="sm" @click="changeTask(row.item)" class="mr-2">Изменить
       </b-button>
     </template>
-    <template v-slot:cell(select)="row">
-      <b-form-checkbox v-model="row.selected" @change="toggleSelectTask(row.item, selectedTasks)">
-      </b-form-checkbox>
+    <template #cell(selected)="rowSelected">
+      <template v-if="rowSelected">
+        <span aria-hidden="true">&check;</span>
+        <span class="sr-only">Selected</span>
+      </template>
+      <template v-else>
+        <span aria-hidden="true"> </span>
+        <span class="sr-only">Not selected</span>
+      </template>
     </template>
+    <!-- <template v-slot:cell(select)="row">
+      <b-form-checkbox
+        v-model="row.selected"
+        @change="toggleSelectTask(row.item, selectedTasks)">
+      </b-form-checkbox>
+    </template> -->
   </b-table>
   <div class="done-btn-div">
     <b-button class="done-btn">Завершить выбранные</b-button>
     <b-button class="delete-btn">Удалить выбранные</b-button>
   </div>
+  <p>
+    Selected Rows:<br>
+    {{ selected }}
+  </p>
 </div>
 </template>
 <script>
@@ -92,10 +119,11 @@ export default {
           label: '',
         },
         {
-          key: 'select',
+          key: 'selected',
           label: '',
         },
       ],
+      selectMode: 'range',
       items,
       newTask,
       editTask,
@@ -111,6 +139,9 @@ export default {
           return taskList;
         };
       }
+    },
+    onRowSelected(items) {
+      this.selected = items;
     },
     checkFormValidity() {
       const valid = this.$refs.form.checkValidity();
@@ -165,16 +196,16 @@ export default {
       this.editTask = record.describe;
       localStorage.setItem('oldTask', JSON.stringify(record));
     },
-    toggleSelectTask(record, selectedTasks) {
-      console.log(this.selectTask);
-      if (this.selectTask) {
-        this.selectTask = false;
-      } else {
-        selectedTasks.push(record);
-        this.selectTask = true;
-      }
-      console.log(record, selectedTasks);
-    },
+    // toggleSelectTask(record, selectedTasks) {
+    //   console.log(this.selected);
+    //   if (this.selected) {
+    //     this.selected = !this.selected;
+    //   } else {
+    //     selectedTasks.push(record);
+    //     this.selected = !this.selected;
+    //   }
+    //   console.log(record, selectedTasks);
+    // },
   },
   created() {
     this.showTodos();
