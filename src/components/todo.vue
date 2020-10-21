@@ -61,13 +61,13 @@
       <b-button v-b-modal.edit-task size="sm" @click="changeTask(row.item)" class="mr-2">Изменить
       </b-button>
     </template>
-    <template #cell(selected)="rowSelected">
+    <template v-slot:cell(selected)="rowSelected">
       <template v-if="rowSelected">
-        <span aria-hidden="true">&check;</span>
+        <span aria-hidden="true">X&check;</span>
         <span class="sr-only">Selected</span>
       </template>
       <template v-else>
-        <span aria-hidden="true"> </span>
+        <span aria-hidden="true">XY&nbsp;</span>
         <span class="sr-only">Not selected</span>
       </template>
     </template>
@@ -124,11 +124,11 @@ export default {
         },
       ],
       selectMode: 'range',
+      selected: [],
       items,
       newTask,
       editTask,
       selectedTasks,
-      selected: [],
     };
   },
   methods: {
