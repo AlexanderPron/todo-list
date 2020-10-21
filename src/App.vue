@@ -1,18 +1,15 @@
 <template>
   <div id="app">
     <todo />
-    <test></test>
   </div>
 </template>
 
 <script>
 import todo from './components/todo.vue';
-import test from './components/test.vue';
 
 export default {
   components: {
     todo,
-    test,
   },
 };
 </script>

@@ -47,9 +47,7 @@
 
   <b-table
     small
-    fixed
     striped
-    hover
     :fields="fields"
     :items="items"
     ref="selectableTable"
@@ -61,38 +59,30 @@
       <b-button v-b-modal.edit-task size="sm" @click="changeTask(row.item)" class="mr-2">Изменить
       </b-button>
     </template>
-    <template v-slot:cell(selected)="rowSelected">
+    <template v-slot:cell(selected)="{ rowSelected }">
       <template v-if="rowSelected">
-        <span aria-hidden="true">X&check;</span>
-        <span class="sr-only">Selected</span>
+        <span aria-hidden="true">&check;</span>
       </template>
       <template v-else>
-        <span aria-hidden="true">XY&nbsp;</span>
-        <span class="sr-only">Not selected</span>
+        <span aria-hidden="true">&nbsp;</span>
       </template>
     </template>
-    <!-- <template v-slot:cell(select)="row">
-      <b-form-checkbox
-        v-model="row.selected"
-        @change="toggleSelectTask(row.item, selectedTasks)">
-      </b-form-checkbox>
-    </template> -->
   </b-table>
   <div class="done-btn-div">
-    <b-button class="done-btn">Завершить выбранные</b-button>
-    <b-button class="delete-btn">Удалить выбранные</b-button>
+    <b-button @click.stop.prevent="doneSelectedTasks(selected)" class="done-btn">
+      Завершить выбранные
+    </b-button>
+    <b-button @click.stop.prevent="deleteSelectedTasks(selected)" class="delete-btn">
+      Удалить выбранные
+    </b-button>
   </div>
-  <p>
-    Selected Rows:<br>
-    {{ selected }}
-  </p>
 </div>
 </template>
 <script>
 import 'bootstrap/dist/css/bootstrap.css';
 
 const inProgress = 'В процессе';
-// const done = 'Выполнено';
+const done = 'Выполнено';
 export default {
   name: 'todo.vue',
   data() {
@@ -103,27 +93,26 @@ export default {
     return {
       fields: [
         {
-          key: 'id',
-          label: 'Номер п/п',
-        },
-        {
           key: 'describe',
           label: 'Задача',
         },
         {
           key: 'status',
           label: 'Статус',
+          tdClass: 'tdStatusClass',
         },
         {
           key: 'edit',
           label: '',
+          tdClass: 'tdEditClass',
         },
         {
           key: 'selected',
           label: '',
+          tdClass: 'tdSelectClass',
         },
       ],
-      selectMode: 'range',
+      selectMode: 'multi',
       selected: [],
       items,
       newTask,
@@ -168,7 +157,6 @@ export default {
       localStorage.setItem('tasks', JSON.stringify(tasksInLS));
       this.newTask = '';
       this.showTodos();
-      // Hide the modal manually
       this.$nextTick(() => {
         this.$bvModal.hide('add-new-task');
       });
@@ -196,16 +184,31 @@ export default {
       this.editTask = record.describe;
       localStorage.setItem('oldTask', JSON.stringify(record));
     },
-    // toggleSelectTask(record, selectedTasks) {
-    //   console.log(this.selected);
-    //   if (this.selected) {
-    //     this.selected = !this.selected;
-    //   } else {
-    //     selectedTasks.push(record);
-    //     this.selected = !this.selected;
-    //   }
-    //   console.log(record, selectedTasks);
-    // },
+    doneSelectedTasks(selected) {
+      const tasksInLS = JSON.parse(localStorage.getItem('tasks'));
+      selected.forEach((selectedTask) => {
+        tasksInLS.forEach((task) => {
+          if (task.id === selectedTask.id) {
+            task.status = done; // eslint-disable-line no-param-reassign
+          }
+        });
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasksInLS));
+      this.showTodos();
+    },
+    deleteSelectedTasks(selected) {
+      let tasksInLS = JSON.parse(localStorage.getItem('tasks'));
+      selected.forEach((selectedTask) => {
+        tasksInLS = tasksInLS.filter((item) => item.id !== selectedTask.id);
+      });
+      let i = 0;
+      tasksInLS.forEach((task) => {
+        i += 1;
+        task.id = i; // eslint-disable-line no-param-reassign
+      });
+      localStorage.setItem('tasks', JSON.stringify(tasksInLS));
+      this.showTodos();
+    },
   },
   created() {
     this.showTodos();
@@ -232,5 +235,14 @@ h3 {
 }
 .done-btn, .delete-btn {
   margin: 0 0 0 10px;
+}
+.tdStatusClass{
+  max-width: 50px;
+}
+.tdEditClass{
+  max-width: 50px;
+}
+.tdSelectClass{
+  max-width: 20px;
 }
 </style>
