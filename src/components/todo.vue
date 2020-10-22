@@ -89,7 +89,6 @@ export default {
     const newTask = '';
     const editTask = '';
     const items = [];
-    const selectedTasks = [];
     return {
       fields: [
         {
@@ -99,17 +98,17 @@ export default {
         {
           key: 'status',
           label: 'Статус',
-          tdClass: 'tdStatusClass',
+          thClass: 'tdStatusClass',
         },
         {
           key: 'edit',
           label: '',
-          tdClass: 'tdEditClass',
+          thClass: 'tdEditClass',
         },
         {
           key: 'selected',
           label: '',
-          tdClass: 'tdSelectClass',
+          thClass: 'tdSelectClass',
         },
       ],
       selectMode: 'multi',
@@ -117,7 +116,6 @@ export default {
       items,
       newTask,
       editTask,
-      selectedTasks,
     };
   },
   methods: {
@@ -237,12 +235,12 @@ h3 {
   margin: 0 0 0 10px;
 }
 .tdStatusClass{
-  max-width: 50px;
+  background-color: blue;
 }
 .tdEditClass{
-  max-width: 50px;
+  background-color: red;
 }
 .tdSelectClass{
-  max-width: 20px;
+  background-color: yellow;
 }
 </style>
